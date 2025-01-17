@@ -295,11 +295,12 @@ func (k *Service4Key) ToHost() ServiceKey {
 // Service4Value must match 'struct lb4_service' in "bpf/lib/common.h".
 type Service4Value struct {
 	BackendID uint32 `align:"$union0"`
-	Count     uint16 `align:"count"`
 	RevNat    uint32 `align:"rev_nat_index"`
+	Count     uint16 `align:"count"`
+	QCount    uint16 `align:"qcount"`
 	Flags     uint8  `align:"flags"`
 	Flags2    uint8  `align:"flags2"`
-	QCount    uint16 `align:"qcount"`
+	Pad       uint16 `align:"pad"`
 }
 
 func (s *Service4Value) New() bpf.MapValue { return &Service4Value{} }
@@ -579,7 +580,7 @@ type SockRevNat4Key struct {
 type SockRevNat4Value struct {
 	Address     types.IPv4 `align:"address"`
 	Port        int16      `align:"port"`
-	RevNatIndex uint16     `align:"rev_nat_index"`
+	RevNatIndex uint32     `align:"rev_nat_index"`
 }
 
 func (k *SockRevNat4Key) Map() *bpf.Map { return SockRevNat4Map }

@@ -1025,11 +1025,12 @@ struct lb6_service {
 		__u32 affinity_timeout;
 		__u32 l7_lb_proxy_port;
 	};
-	__u16 count;
 	__u32 rev_nat_index;
+	__u16 count;
+	__u16 qcount;
 	__u8 flags;
 	__u8 flags2;
-	__u16 qcount;
+	__u16 pad;
 };
 
 /* See lb4_backend comments */
@@ -1066,6 +1067,7 @@ struct ipv6_revnat_entry {
 	union v6addr address;
 	__be16 port;
 	__u32 rev_nat_index;
+	__u16 pad;
 };
 
 struct lb4_key {
@@ -1100,17 +1102,18 @@ struct lb4_service {
 		 */
 		__u32 l7_lb_proxy_port;
 	};
+	__u32 rev_nat_index;	/* Reverse NAT ID in lb4_reverse_nat */
 	/* For the service frontend, count denotes number of service backend
 	 * slots (otherwise zero).
 	 */
 	__u16 count;
-	__u32 rev_nat_index;	/* Reverse NAT ID in lb4_reverse_nat */
-	__u8 flags;
-	__u8 flags2;
 	/* For the service frontend, qcount denotes number of service backend
 	 * slots under quarantine (otherwise zero).
 	 */
 	__u16 qcount;
+	__u8 flags;
+	__u8 flags2;
+	__u16 pad;
 };
 
 struct lb4_backend {
@@ -1158,8 +1161,7 @@ struct lb4_affinity_key {
 	__u32 rev_nat_id;
 	__u8 netns_cookie:1,
 	     reserved:7;
-	__u8 pad1;
-	__u32 pad2;
+	__u8 pad[6];
 } __packed;
 
 union lb6_affinity_client_id {
@@ -1172,8 +1174,7 @@ struct lb6_affinity_key {
 	__u32 rev_nat_id;
 	__u8 netns_cookie:1,
 	     reserved:7;
-	__u8 pad1;
-	__u32 pad2;
+	__u8 pad[3];
 } __packed;
 
 struct lb_affinity_val {
@@ -1226,7 +1227,7 @@ static __always_inline bool ct_state_is_from_l7lb(const struct ct_state *ct_stat
 struct lb4_src_range_key {
 	struct bpf_lpm_trie_key lpm_key;
 	__u32 rev_nat_id;
-	__u16 pad;
+	__u32 pad;
 	__u32 addr;
 };
 

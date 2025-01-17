@@ -193,11 +193,12 @@ func (k *Service6Key) ToHost() ServiceKey {
 // Service6Value must match 'struct lb6_service' in "bpf/lib/common.h".
 type Service6Value struct {
 	BackendID uint32 `align:"$union0"`
-	Count     uint16 `align:"count"`
 	RevNat    uint32 `align:"rev_nat_index"`
+	Count     uint16 `align:"count"`
+	QCount    uint16 `align:"qcount"`
 	Flags     uint8  `align:"flags"`
 	Flags2    uint8  `align:"flags2"`
-	QCount    uint16 `align:"qcount"`
+	Pad       uint16 `align:"pad"`
 }
 
 func (s *Service6Value) New() bpf.MapValue { return &Service6Value{} }
@@ -478,7 +479,8 @@ const SizeofSockRevNat6Key = int(unsafe.Sizeof(SockRevNat6Key{}))
 type SockRevNat6Value struct {
 	Address     types.IPv6 `align:"address"`
 	Port        int16      `align:"port"`
-	RevNatIndex uint16     `align:"rev_nat_index"`
+	RevNatIndex uint32     `align:"rev_nat_index"`
+	Pad         uint16     `align:"pad"`
 }
 
 // SizeofSockRevNat6Value is the size of type SockRevNat6Value.

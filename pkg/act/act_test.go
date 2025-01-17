@@ -13,6 +13,7 @@ import (
 	"github.com/cilium/hive/hivetest"
 	"github.com/stretchr/testify/require"
 
+	"github.com/cilium/cilium/pkg/byteorder"
 	"github.com/cilium/cilium/pkg/loadbalancer"
 	"github.com/cilium/cilium/pkg/maps/act"
 	"github.com/cilium/cilium/pkg/option"
@@ -307,7 +308,7 @@ func TestReconcileServices(t *testing.T) {
 		124: {25: nl, 26: nl, 27: nl, 28: nl},
 	}
 	// {24, 26, 27} but in host byte order
-	activeServices := []loadbalancer.ServiceID{24 * 256, 26 * 256, 27 * 256}
+	activeServices := []loadbalancer.ServiceID{loadbalancer.ServiceID(byteorder.NetworkToHost32(24)), loadbalancer.ServiceID(byteorder.NetworkToHost32(26)), loadbalancer.ServiceID(byteorder.NetworkToHost32(27))}
 	a.svcIDs = func() []loadbalancer.ServiceID {
 		return activeServices
 	}
@@ -315,7 +316,7 @@ func TestReconcileServices(t *testing.T) {
 	err := a.reconcileServices(context.Background())
 	require.NoError(t, err)
 
-	expectedTracker := map[uint8]map[uint16]*actMetric{
+	expectedTracker := map[uint8]map[uint32]*actMetric{
 		123: {24: nl, 26: nl, 27: nl},
 		124: {26: nl, 27: nl},
 	}
