@@ -214,7 +214,7 @@ func (ops *BPFOps) deleteFrontend(fe *Frontend) error {
 
 	// Delete Maglev.
 	if ops.cfg.NodePortAlg == option.NodePortAlgMaglev {
-		if err := ops.LBMaps.DeleteMaglev(lbmap.MaglevOuterKey{RevNatID: uint16(feID)}, fe.Address.IsIPv6()); err != nil {
+		if err := ops.LBMaps.DeleteMaglev(lbmap.MaglevOuterKey{RevNatID: uint32(feID)}, fe.Address.IsIPv6()); err != nil {
 			return fmt.Errorf("ops.LBMaps.DeleteMaglev failed: %w", err)
 		}
 	}
@@ -243,10 +243,10 @@ func (ops *BPFOps) deleteFrontend(fe *Frontend) error {
 	ip := fe.Address.AddrCluster.AsNetIP()
 	if fe.Address.IsIPv6() {
 		svcKey = lbmap.NewService6Key(ip, fe.Address.Port, u8proto.ANY, fe.Address.Scope, 0)
-		revNatKey = lbmap.NewRevNat6Key(uint16(feID))
+		revNatKey = lbmap.NewRevNat6Key(uint32(feID))
 	} else {
 		svcKey = lbmap.NewService4Key(ip, fe.Address.Port, u8proto.ANY, fe.Address.Scope, 0)
-		revNatKey = lbmap.NewRevNat4Key(uint16(feID))
+		revNatKey = lbmap.NewRevNat4Key(uint32(feID))
 	}
 
 	// Delete all slots including master.
@@ -270,7 +270,7 @@ func (ops *BPFOps) deleteFrontend(fe *Frontend) error {
 			continue
 		}
 		err := ops.LBMaps.DeleteSourceRange(
-			srcRangeKey(cidr, uint16(feID), fe.Address.IsIPv6()),
+			srcRangeKey(cidr, uint32(feID), fe.Address.IsIPv6()),
 		)
 		if err != nil {
 			return fmt.Errorf("update source range: %w", err)
@@ -669,7 +669,7 @@ func (ops *BPFOps) updateFrontend(fe *Frontend) error {
 		prefix := cidrToPrefix(cidr)
 
 		err := ops.LBMaps.UpdateSourceRange(
-			srcRangeKey(prefix, uint16(feID), fe.Address.IsIPv6()),
+			srcRangeKey(prefix, uint32(feID), fe.Address.IsIPv6()),
 			srcRangeValue,
 		)
 		if err != nil {
@@ -685,7 +685,7 @@ func (ops *BPFOps) updateFrontend(fe *Frontend) error {
 			continue
 		}
 		err := ops.LBMaps.DeleteSourceRange(
-			srcRangeKey(cidr, uint16(feID), fe.Address.IsIPv6()),
+			srcRangeKey(cidr, uint32(feID), fe.Address.IsIPv6()),
 		)
 		if err != nil {
 			return fmt.Errorf("update source range: %w", err)
@@ -804,7 +804,7 @@ func (ops *BPFOps) upsertAffinityMatch(id loadbalancer.ID, beID loadbalancer.Bac
 
 	key := &lbmap.AffinityMatchKey{
 		BackendID: beID,
-		RevNATID:  uint16(id),
+		RevNATID:  uint32(id),
 	}
 	var value lbmap.AffinityMatchValue
 	ops.log.Debug("upsertAffinityMatch", "key", key)
@@ -818,7 +818,7 @@ func (ops *BPFOps) deleteAffinityMatch(id loadbalancer.ID, beID loadbalancer.Bac
 
 	key := &lbmap.AffinityMatchKey{
 		BackendID: beID,
-		RevNATID:  uint16(id),
+		RevNATID:  uint32(id),
 	}
 	ops.log.Debug("deleteAffinityMatch", "serviceID", id, "backendID", beID)
 	return ops.LBMaps.DeleteAffinityMatch(key.ToNetwork())
@@ -845,7 +845,7 @@ func (ops *BPFOps) upsertRevNat(id loadbalancer.ID, svcKey lbmap.ServiceKey, svc
 
 func (ops *BPFOps) updateMaglev(fe *Frontend, feID loadbalancer.ID, activeBackends []BackendWithRevision) error {
 	if len(activeBackends) == 0 {
-		if err := ops.LBMaps.DeleteMaglev(lbmap.MaglevOuterKey{RevNatID: uint16(feID)}, fe.Address.IsIPv6()); err != nil {
+		if err := ops.LBMaps.DeleteMaglev(lbmap.MaglevOuterKey{RevNatID: uint32(feID)}, fe.Address.IsIPv6()); err != nil {
 			return fmt.Errorf("ops.LBMaps.DeleteMaglev failed: %w", err)
 		}
 		return nil
@@ -854,7 +854,7 @@ func (ops *BPFOps) updateMaglev(fe *Frontend, feID loadbalancer.ID, activeBacken
 	if err != nil {
 		return fmt.Errorf("ops.computeMaglevTable failed: %w", err)
 	}
-	if err := ops.LBMaps.UpdateMaglev(lbmap.MaglevOuterKey{RevNatID: uint16(feID)}, maglevTable, fe.Address.IsIPv6()); err != nil {
+	if err := ops.LBMaps.UpdateMaglev(lbmap.MaglevOuterKey{RevNatID: uint32(feID)}, maglevTable, fe.Address.IsIPv6()); err != nil {
 		return fmt.Errorf("ops.LBMaps.UpdateMaglev failed: %w", err)
 	}
 	return nil
@@ -1108,13 +1108,13 @@ func newID(svc loadbalancer.L3n4Addr, id loadbalancer.ID) *loadbalancer.L3n4Addr
 	}
 }
 
-func srcRangeKey(cidr netip.Prefix, revNATID uint16, ipv6 bool) lbmap.SourceRangeKey {
+func srcRangeKey(cidr netip.Prefix, revNATID uint32, ipv6 bool) lbmap.SourceRangeKey {
 	const (
 		lpmPrefixLen4 = 16 + 16 // sizeof(SourceRangeKey4.RevNATID)+sizeof(SourceRangeKey4.Pad)
 		lpmPrefixLen6 = 16 + 16 // sizeof(SourceRangeKey6.RevNATID)+sizeof(SourceRangeKey6.Pad)
 	)
 	ones := cidr.Bits()
-	id := byteorder.HostToNetwork16(revNATID)
+	id := byteorder.HostToNetwork32(revNATID)
 	if ipv6 {
 		key := &lbmap.SourceRangeKey6{PrefixLen: uint32(ones) + lpmPrefixLen6, RevNATID: id}
 		as16 := cidr.Addr().As16()

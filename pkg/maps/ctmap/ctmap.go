@@ -186,8 +186,8 @@ type EmitCTEntryCBFunc func(srcIP, dstIP netip.Addr, srcPort, dstPort uint16, ne
 
 // TODO: GH-33557: Remove this hack once ctmap is migrated to a cell.
 type PurgeHook interface {
-	CountFailed4(uint16, uint32)
-	CountFailed6(uint16, uint32)
+	CountFailed4(uint32, uint32)
+	CountFailed6(uint32, uint32)
 }
 
 var ACT PurgeHook
@@ -394,7 +394,7 @@ func doGCForFamily(m *Map, filter GCFilter, next4, next6 func(GCEvent), ipv6 boo
 	return stats
 }
 
-func purgeCtEntry(m *Map, key CtKey, entry *CtEntry, natMap *nat.Map, next func(event GCEvent), actCountFailed func(uint16, uint32)) error {
+func purgeCtEntry(m *Map, key CtKey, entry *CtEntry, natMap *nat.Map, next func(event GCEvent), actCountFailed func(uint32, uint32)) error {
 	err := m.Delete(key)
 	if err != nil {
 		return err
@@ -453,7 +453,7 @@ type tupleKeyAccessor interface {
 }
 
 func cleanup(m *Map, filter GCFilter, natMap *nat.Map, stats *gcStats, next func(GCEvent), ipv6 bool) func(key bpf.MapKey, value bpf.MapValue) {
-	var countFailedFn func(uint16, uint32)
+	var countFailedFn func(uint32, uint32)
 	if ACT != nil {
 		countFailedFn = ACT.CountFailed4
 		if ipv6 {

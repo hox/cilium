@@ -115,7 +115,7 @@ type ACT struct {
 	// mux protects tracker map
 	mux *lock.Mutex
 	// tracker is a map[zone][svc]metric
-	tracker map[uint8]map[uint16]*actMetric
+	tracker map[uint8]map[uint32]*actMetric
 }
 
 func NewACT(in struct {
@@ -153,9 +153,9 @@ func NewACT(in struct {
 }
 
 func newAct(log *slog.Logger, src act.ActiveConnectionTrackingMap, metrics ActiveConnectionTrackingMetrics, svcMgr service.ServiceManager, opts *option.DaemonConfig) *ACT {
-	tracker := make(map[uint8]map[uint16]*actMetric, len(opts.FixedZoneMapping))
+	tracker := make(map[uint8]map[uint32]*actMetric, len(opts.FixedZoneMapping))
 	for zone := range opts.ReverseFixedZoneMapping {
-		tracker[zone] = make(map[uint16]*actMetric)
+		tracker[zone] = make(map[uint32]*actMetric)
 	}
 	kts := func(key *act.ActiveConnectionTrackerKey) (zone string, svc string, err error) {
 		zone = opts.GetZone(key.Zone)
@@ -163,7 +163,7 @@ func newAct(log *slog.Logger, src act.ActiveConnectionTrackingMap, metrics Activ
 			return "", "", fmt.Errorf("resolve zone id: %w", err)
 		}
 
-		ref, err := service.GetID(uint32(byteorder.NetworkToHost16(key.SvcID)))
+		ref, err := service.GetID(byteorder.HostToNetwork32(key.SvcID))
 		if err != nil || ref == nil {
 			return "", "", fmt.Errorf("resolve svc id: %w", err)
 		}
@@ -284,7 +284,7 @@ func (a *ACT) update(ctx context.Context) error {
 	return nil
 }
 
-func (a *ACT) dropEntry(zone uint8, svc uint16) {
+func (a *ACT) dropEntry(zone uint8, svc uint32) {
 	entry := a.tracker[zone][svc]
 	a.metrics.New.DeleteLabelValues(entry.labelValues...)
 	a.metrics.Active.DeleteLabelValues(entry.labelValues...)
@@ -325,22 +325,22 @@ func (a *ACT) cleanup(ctx context.Context) error {
 
 // CountFailed4 increments a counter of new failed connections
 // for a given (svc, backend) pair.
-func (a *ACT) CountFailed4(svc uint16, backend uint32) {
+func (a *ACT) CountFailed4(svc uint32, backend uint32) {
 	key := lbmap.NewBackend4KeyV3(loadbalancer.BackendID(backend))
 	a.countFailed(svc, key)
 }
 
 // CountFailed6 increments a counter of new failed connections
 // for a given (svc, backend) pair.
-func (a *ACT) CountFailed6(svc uint16, backend uint32) {
+func (a *ACT) CountFailed6(svc uint32, backend uint32) {
 	key := lbmap.NewBackend6KeyV3(loadbalancer.BackendID(backend))
 	a.countFailed(svc, key)
 }
 
 // countFailed looks up zone information in the backend map and then increments
 // a counter of new failed connection for a constructed (svc, zone) pair.
-func (a *ACT) countFailed(svc uint16, key lbmap.BackendKey) {
-	scopedLog := a.log.With("svc", byteorder.NetworkToHost16(svc), "backend", key.GetID())
+func (a *ACT) countFailed(svc uint32, key lbmap.BackendKey) {
+	scopedLog := a.log.With("svc", byteorder.NetworkToHost32(svc), "backend", key.GetID())
 
 	val, err := key.Map().Lookup(key)
 	if err != nil {
@@ -505,9 +505,9 @@ func (a *ACT) saveFailed() error {
 
 func (a *ACT) reconcileServices(ctx context.Context) error {
 	svcs := a.svcIDs()
-	tracked := make(map[uint16]bool, len(svcs))
+	tracked := make(map[uint32]bool, len(svcs))
 	for _, svc := range svcs {
-		tracked[byteorder.HostToNetwork16(uint16(svc))] = true
+		tracked[byteorder.HostToNetwork32(uint32(svc))] = true
 	}
 	select {
 	case <-ctx.Done():

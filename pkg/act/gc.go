@@ -5,7 +5,7 @@ package act
 
 type gcEntry struct {
 	unix int64
-	svc  uint16
+	svc  uint32
 	zone uint8
 }
 

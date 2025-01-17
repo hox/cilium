@@ -225,14 +225,14 @@ func TestOverflow(t *testing.T) {
 	a := newAct(hivetest.Logger(t), m, NewActiveConnectionTrackingMetrics(), &service.Service{}, &option.DaemonConfig{})
 
 	zones := []uint8{123, 124, 125, 126, 127}
-	services := make([]uint16, metricsCountSoftLimit/2)
+	services := make([]uint32, metricsCountSoftLimit/2)
 	for i := range services {
-		services[i] = uint16(i + 64)
+		services[i] = uint32(i + 64)
 	}
 
 	ls := make([]int64, 0, len(zones)*len(services))
 	for _, zone := range zones {
-		a.tracker[zone] = make(map[uint16]*actMetric)
+		a.tracker[zone] = make(map[uint32]*actMetric)
 		for _, svc := range services {
 			unix := int64(svc)*1000 + int64(zone)
 			a.tracker[zone][svc] = &actMetric{
@@ -302,7 +302,7 @@ func TestReconcileServices(t *testing.T) {
 	a := newAct(hivetest.Logger(t), m, NewActiveConnectionTrackingMetrics(), &service.Service{}, &option.DaemonConfig{})
 
 	nl := new(actMetric)
-	a.tracker = map[uint8]map[uint16]*actMetric{
+	a.tracker = map[uint8]map[uint32]*actMetric{
 		123: {24: nl, 26: nl, 27: nl, 29: nl},
 		124: {25: nl, 26: nl, 27: nl, 28: nl},
 	}
