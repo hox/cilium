@@ -974,6 +974,7 @@ struct ct_entry {
 	__u64 packets;
 	__u64 bytes;
 	__u32 lifetime;
+	__u32 rev_nat_index;
 	__u16 rx_closing:1,
 	      tx_closing:1,
 	      reserved1:1,	/* unused since v1.12 */
@@ -986,7 +987,7 @@ struct ct_entry {
 	      reserved2:1,	/* unused since v1.14 */
 	      from_tunnel:1,	/* Connection is over tunnel */
 	      reserved3:5;
-	__u32 rev_nat_index;
+	__u16 pad2;
 	/* In the kernel ifindex is u32, so we need to check in cilium-agent
 	 * that ifindex of a NodePort device is <= MAX(u16).
 	 * Unused when HAVE_FIB_INDEX is available.
@@ -1006,6 +1007,7 @@ struct ct_entry {
 	 */
 	__u32 last_tx_report;
 	__u32 last_rx_report;
+	__u32 pad1;
 };
 
 struct lb6_key {
@@ -1065,8 +1067,8 @@ struct ipv6_revnat_tuple {
 
 struct ipv6_revnat_entry {
 	union v6addr address;
-	__be16 port;
 	__u32 rev_nat_index;
+	__be16 port;
 	__u16 pad;
 };
 
@@ -1147,8 +1149,9 @@ struct ipv4_revnat_tuple {
 
 struct ipv4_revnat_entry {
 	__be32 address;
-	__be16 port;
 	__u32 rev_nat_index;
+	__be16 port;
+	__u16 pad;
 };
 
 union lb4_affinity_client_id {
@@ -1159,9 +1162,10 @@ union lb4_affinity_client_id {
 struct lb4_affinity_key {
 	union lb4_affinity_client_id client_id;
 	__u32 rev_nat_id;
+	__u16 pad1;
 	__u8 netns_cookie:1,
 	     reserved:7;
-	__u8 pad[6];
+	__u8 pad2;
 } __packed;
 
 union lb6_affinity_client_id {
@@ -1170,12 +1174,13 @@ union lb6_affinity_client_id {
 } __packed;
 
 struct lb6_affinity_key {
-	union lb6_affinity_client_id client_id;
-	__u32 rev_nat_id;
-	__u8 netns_cookie:1,
-	     reserved:7;
-	__u8 pad[3];
-} __packed;
+	union lb6_affinity_client_id client_id; 
+	__u32 rev_nat_id; 
+	__u16 pad1;
+	__u8 netns_cookie:1, 
+	reserved:7;
+	__u8 pad2;
+} __packed; 
 
 struct lb_affinity_val {
 	__u64 last_used;
@@ -1186,7 +1191,6 @@ struct lb_affinity_val {
 struct lb_affinity_match {
 	__u32 backend_id;
 	__u32 rev_nat_id;
-	__u16 pad;
 } __packed;
 
 struct ct_state {
@@ -1227,14 +1231,12 @@ static __always_inline bool ct_state_is_from_l7lb(const struct ct_state *ct_stat
 struct lb4_src_range_key {
 	struct bpf_lpm_trie_key lpm_key;
 	__u32 rev_nat_id;
-	__u32 pad;
 	__u32 addr;
 };
 
 struct lb6_src_range_key {
 	struct bpf_lpm_trie_key lpm_key;
 	__u32 rev_nat_id;
-	__u16 pad;
 	union v6addr addr;
 };
 

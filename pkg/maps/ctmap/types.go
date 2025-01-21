@@ -545,15 +545,17 @@ type CtEntry struct {
 	Packets   uint64 `align:"packets"`
 	Bytes     uint64 `align:"bytes"`
 	Lifetime  uint32 `align:"lifetime"`
+	RevNAT    uint32 `align:"rev_nat_index"`
 	Flags     uint16 `align:"rx_closing"`
 	// RevNAT is in network byte order
-	RevNAT           uint32 `align:"rev_nat_index"`
+	Pad2             uint16 `align:"pad2"`
 	IfIndex          uint16 `align:"ifindex"`
 	TxFlagsSeen      uint8  `align:"tx_flags_seen"`
 	RxFlagsSeen      uint8  `align:"rx_flags_seen"`
 	SourceSecurityID uint32 `align:"src_sec_id"`
 	LastTxReport     uint32 `align:"last_tx_report"`
 	LastRxReport     uint32 `align:"last_rx_report"`
+	Pad1             uint32 `align:"pad1"`
 }
 
 const SizeofCtEntry = int(unsafe.Sizeof(CtEntry{}))

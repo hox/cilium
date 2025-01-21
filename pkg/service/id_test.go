@@ -4,6 +4,8 @@
 package service
 
 import (
+	"encoding/binary"
+	"net"
 	"testing"
 	"time"
 
@@ -149,9 +151,12 @@ func TestGetMaxServiceID(t *testing.T) {
 func TestAcquireOverflow(t *testing.T) {
 	a := NewIDAllocator(FirstFreeServiceID, MaxSetOfServiceID)
 	for i := FirstFreeServiceID; i < MaxSetOfServiceID; i++ {
+		ipBytes := make([]byte, 4)
+		binary.BigEndian.PutUint32(ipBytes, i)
+
 		l3n4Addr := loadbalancer.L3n4Addr{
-			AddrCluster: cmtypes.MustParseAddrCluster("::1"),
-			L4Addr:      loadbalancer.L4Addr{Port: uint16(i), Protocol: "TCP"},
+			AddrCluster: cmtypes.MustParseAddrCluster(net.IP(ipBytes).String()),
+			L4Addr:      loadbalancer.L4Addr{Port: 10, Protocol: "TCP"},
 		}
 		_, err := a.acquireLocalID(l3n4Addr, i)
 		require.NoError(t, err)
