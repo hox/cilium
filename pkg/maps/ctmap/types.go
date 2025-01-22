@@ -542,9 +542,9 @@ type CtEntry struct {
 	Packets   uint64 `align:"packets"`
 	Bytes     uint64 `align:"bytes"`
 	Lifetime  uint32 `align:"lifetime"`
-	RevNAT    uint32 `align:"rev_nat_index"`
-	Flags     uint16 `align:"rx_closing"`
 	// RevNAT is in network byte order
+	RevNAT           uint32 `align:"rev_nat_index"`
+	Flags            uint16 `align:"rx_closing"`
 	Pad2             uint16 `align:"pad2"`
 	IfIndex          uint16 `align:"ifindex"`
 	TxFlagsSeen      uint8  `align:"tx_flags_seen"`

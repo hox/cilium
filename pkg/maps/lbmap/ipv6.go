@@ -192,11 +192,11 @@ func (k *Service6Key) ToHost() ServiceKey {
 // Service6Value must match 'struct lb6_service' in "bpf/lib/common.h".
 type Service6Value struct {
 	BackendID uint32 `align:"$union0"`
-	Count     uint16 `align:"count"`
 	RevNat    uint32 `align:"rev_nat_index"`
+	Pad       uint32 `align:"pad"`
+	Count     uint16 `align:"count"`
 	Flags     uint8  `align:"flags"`
 	Flags2    uint8  `align:"flags2"`
-	QCount    uint16 `align:"qcount"`
 }
 
 func (s *Service6Value) New() bpf.MapValue { return &Service6Value{} }
@@ -493,7 +493,7 @@ func (k *SockRevNat6Key) New() bpf.MapKey { return &SockRevNat6Key{} }
 
 // String converts the value into a human readable string format.
 func (v *SockRevNat6Value) String() string {
-	return fmt.Sprintf("[%s]:%d, %d", v.address, v.port, v.revNatIndex)
+	return fmt.Sprintf("[%s]:%d, %d", v.Address, v.Port, v.RevNatIndex)
 }
 
 func (v *SockRevNat6Value) New() bpf.MapValue { return &SockRevNat6Value{} }

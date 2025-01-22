@@ -1068,7 +1068,7 @@ err_ct_fill_up:
 #ifndef DISABLE_LOOPBACK_LB
 static __always_inline bool
 ct_has_loopback_egress_entry4(const void *map, struct ipv4_ct_tuple *tuple,
-			      __u16 *rev_nat_index)
+			      __u32 *rev_nat_index)
 {
 	__u8 flags = tuple->flags;
 	struct ct_entry *entry;

@@ -154,9 +154,6 @@ func check(name string, toCheck []any, structs map[string]*structInfo, checkOffs
 			return fmt.Errorf("type %s's binary.Size (%d) does not equal its unsafe.Sizeof (%d) size (struct with implicit trailing padding?)", g.Name(), bs, rs)
 		}
 
-		fmt.Println("bob", uint32(g.Size()), c.size)
-		fmt.Println("bob2", c.fieldOffsets)
-
 		if c.size != uint32(g.Size()) {
 			return fmt.Errorf("%s(%d) size does not match %s(%d)", g, g.Size(),
 				name, c.size)
