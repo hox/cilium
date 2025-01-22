@@ -116,7 +116,7 @@ func (m actMap) IterateWithCallback(cb ActiveConnectionTrackingIterateCallback) 
 //
 // It must match 'struct lb_act_key' in "bpf/lib/act.h".
 type ActiveConnectionTrackerKey struct {
-	SvcID uint16 `align:"svc_id"`
+	SvcID uint32 `align:"svc_id"`
 	Zone  uint8  `align:"zone"`
 	Pad   uint8  `align:"pad"`
 }
@@ -124,8 +124,8 @@ type ActiveConnectionTrackerKey struct {
 func (s *ActiveConnectionTrackerKey) New() bpf.MapKey { return &ActiveConnectionTrackerKey{} }
 
 func (v *ActiveConnectionTrackerKey) String() string {
-	svcID := byteorder.HostToNetwork16(v.SvcID)
-	if svcAddr, err := service.GetID(uint32(svcID)); err == nil && svcAddr != nil {
+	svcID := byteorder.HostToNetwork32(v.SvcID)
+	if svcAddr, err := service.GetID(svcID); err == nil && svcAddr != nil {
 		return fmt.Sprintf("%s[%s]", svcAddr.String(), option.Config.GetZone(v.Zone))
 	}
 	return fmt.Sprintf("%d[%s]", svcID, option.Config.GetZone(v.Zone))

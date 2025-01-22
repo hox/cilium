@@ -78,7 +78,7 @@ struct {
 #if LB_SELECTION == LB_SELECTION_MAGLEV
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH_OF_MAPS);
-	__type(key, __u16);
+	__type(key, __u32);
 	__type(value, __u32);
 	__uint(pinning, LIBBPF_PIN_BY_NAME);
 	__uint(max_entries, CILIUM_LB_MAGLEV_MAP_MAX_ENTRIES);
@@ -499,7 +499,7 @@ static __always_inline int __lb6_rev_nat(struct __ctx_buff *ctx, int l4_off,
 }
 
 static __always_inline struct lb6_reverse_nat *
-lb6_lookup_rev_nat_entry(struct __ctx_buff *ctx __maybe_unused, __u16 index)
+lb6_lookup_rev_nat_entry(struct __ctx_buff *ctx __maybe_unused, __u32 index)
 {
 	cilium_dbg_lb(ctx, DBG_LB6_REVERSE_NAT_LOOKUP, index, 0);
 
@@ -513,7 +513,7 @@ lb6_lookup_rev_nat_entry(struct __ctx_buff *ctx __maybe_unused, __u16 index)
  * @arg tuple		tuple
  */
 static __always_inline int lb6_rev_nat(struct __ctx_buff *ctx, int l4_off,
-				       __u16 index, struct ipv6_ct_tuple *tuple)
+				       __u32 index, struct ipv6_ct_tuple *tuple)
 {
 	struct lb6_reverse_nat *nat;
 
@@ -1162,7 +1162,7 @@ static __always_inline int __lb4_rev_nat(struct __ctx_buff *ctx, int l3_off, int
 }
 
 static __always_inline struct lb4_reverse_nat *
-lb4_lookup_rev_nat_entry(struct __ctx_buff *ctx __maybe_unused, __u16 index)
+lb4_lookup_rev_nat_entry(struct __ctx_buff *ctx __maybe_unused, __u32 index)
 {
 	cilium_dbg_lb(ctx, DBG_LB4_REVERSE_NAT_LOOKUP, index, 0);
 
@@ -1178,7 +1178,7 @@ lb4_lookup_rev_nat_entry(struct __ctx_buff *ctx __maybe_unused, __u16 index)
  * @arg tuple		tuple
  */
 static __always_inline int lb4_rev_nat(struct __ctx_buff *ctx, int l3_off, int l4_off,
-				       __u16 index, bool loopback,
+				       __u32 index, bool loopback,
 				       struct ipv4_ct_tuple *tuple, bool has_l4_header)
 {
 	struct lb4_reverse_nat *nat;

@@ -72,29 +72,29 @@ var _ BackendValue = (*Backend6Value)(nil)
 var _ Backend = (*Backend6)(nil)
 
 type RevNat6Key struct {
-	Key uint16
+	Key uint32
 }
 
-func NewRevNat6Key(value uint16) *RevNat6Key {
+func NewRevNat6Key(value uint32) *RevNat6Key {
 	return &RevNat6Key{value}
 }
 
 func (v *RevNat6Key) Map() *bpf.Map   { return RevNat6Map }
 func (v *RevNat6Key) String() string  { return fmt.Sprintf("%d", v.ToHost().(*RevNat6Key).Key) }
 func (v *RevNat6Key) New() bpf.MapKey { return &RevNat6Key{} }
-func (v *RevNat6Key) GetKey() uint16  { return v.Key }
+func (v *RevNat6Key) GetKey() uint32  { return v.Key }
 
 // ToNetwork converts RevNat6Key to network byte order.
 func (v *RevNat6Key) ToNetwork() RevNatKey {
 	n := *v
-	n.Key = byteorder.HostToNetwork16(n.Key)
+	n.Key = byteorder.HostToNetwork32(n.Key)
 	return &n
 }
 
 // ToNetwork converts RevNat6Key to host byte order.
 func (v *RevNat6Key) ToHost() RevNatKey {
 	h := *v
-	h.Key = byteorder.NetworkToHost16(h.Key)
+	h.Key = byteorder.HostToNetwork32(h.Key)
 	return &h
 }
 
@@ -191,12 +191,12 @@ func (k *Service6Key) ToHost() ServiceKey {
 
 // Service6Value must match 'struct lb6_service' in "bpf/lib/common.h".
 type Service6Value struct {
-	BackendID uint32    `align:"$union0"`
-	Count     uint16    `align:"count"`
-	RevNat    uint16    `align:"rev_nat_index"`
-	Flags     uint8     `align:"flags"`
-	Flags2    uint8     `align:"flags2"`
-	Pad       pad2uint8 `align:"pad"`
+	BackendID uint32 `align:"$union0"`
+	Count     uint16 `align:"count"`
+	RevNat    uint32 `align:"rev_nat_index"`
+	Flags     uint8  `align:"flags"`
+	Flags2    uint8  `align:"flags2"`
+	QCount    uint16 `align:"qcount"`
 }
 
 func (s *Service6Value) New() bpf.MapValue { return &Service6Value{} }
@@ -208,7 +208,7 @@ func (s *Service6Value) String() string {
 
 func (s *Service6Value) SetCount(count int)   { s.Count = uint16(count) }
 func (s *Service6Value) GetCount() int        { return int(s.Count) }
-func (s *Service6Value) SetRevNat(id int)     { s.RevNat = uint16(id) }
+func (s *Service6Value) SetRevNat(id int)     { s.RevNat = uint32(id) }
 func (s *Service6Value) GetRevNat() int       { return int(s.RevNat) }
 func (s *Service6Value) RevNatKey() RevNatKey { return &RevNat6Key{s.RevNat} }
 func (s *Service6Value) SetFlags(flags uint16) {
@@ -240,14 +240,14 @@ func (s *Service6Value) GetBackendID() loadbalancer.BackendID {
 
 func (s *Service6Value) ToNetwork() ServiceValue {
 	n := *s
-	n.RevNat = byteorder.HostToNetwork16(n.RevNat)
+	n.RevNat = byteorder.HostToNetwork32(n.RevNat)
 	return &n
 }
 
 // ToHost converts Service6Value to host byte order.
 func (s *Service6Value) ToHost() ServiceValue {
 	h := *s
-	h.RevNat = byteorder.NetworkToHost16(h.RevNat)
+	h.RevNat = byteorder.HostToNetwork32(h.RevNat)
 	return &h
 }
 

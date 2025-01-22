@@ -24,7 +24,7 @@ const (
 
 type SourceRangeKey interface {
 	GetCIDR() *cidr.CIDR
-	GetRevNATID() uint16
+	GetRevNATID() uint32
 
 	// Convert fields to network byte order.
 	ToNetwork() SourceRangeKey
@@ -39,7 +39,7 @@ var _ SourceRangeKey = (*SourceRangeKey6)(nil)
 
 type SourceRangeKey4 struct {
 	PrefixLen uint32     `align:"lpm_key"`
-	RevNATID  uint16     `align:"rev_nat_id"`
+	RevNATID  uint32     `align:"rev_nat_id"`
 	Pad       uint16     `align:"pad"`
 	Address   types.IPv4 `align:"addr"`
 }
@@ -55,14 +55,14 @@ func (k *SourceRangeKey4) ToNetwork() SourceRangeKey {
 	n := *k
 	// For some reasons rev_nat_index is stored in network byte order in
 	// the SVC BPF maps
-	n.RevNATID = byteorder.HostToNetwork16(n.RevNATID)
+	n.RevNATID = byteorder.HostToNetwork32(n.RevNATID)
 	return &n
 }
 
 // ToHost returns the key in the host byte order
 func (k *SourceRangeKey4) ToHost() SourceRangeKey {
 	h := *k
-	h.RevNATID = byteorder.NetworkToHost16(h.RevNATID)
+	h.RevNATID = byteorder.HostToNetwork32(h.RevNATID)
 	return &h
 }
 
@@ -76,13 +76,13 @@ func (k *SourceRangeKey4) GetCIDR() *cidr.CIDR {
 	c.IP = ip.IP()
 	return cidr.NewCIDR(&c)
 }
-func (k *SourceRangeKey4) GetRevNATID() uint16 {
+func (k *SourceRangeKey4) GetRevNATID() uint32 {
 	return k.RevNATID
 }
 
 type SourceRangeKey6 struct {
 	PrefixLen uint32     `align:"lpm_key"`
-	RevNATID  uint16     `align:"rev_nat_id"`
+	RevNATID  uint32     `align:"rev_nat_id"`
 	Pad       uint16     `align:"pad"`
 	Address   types.IPv6 `align:"addr"`
 }
@@ -98,14 +98,14 @@ func (k *SourceRangeKey6) ToNetwork() SourceRangeKey {
 	n := *k
 	// For some reasons rev_nat_index is stored in network byte order in
 	// the SVC BPF maps
-	n.RevNATID = byteorder.HostToNetwork16(n.RevNATID)
+	n.RevNATID = byteorder.HostToNetwork32(n.RevNATID)
 	return &n
 }
 
 // ToHost returns the key in the host byte order
 func (k *SourceRangeKey6) ToHost() SourceRangeKey {
 	h := *k
-	h.RevNATID = byteorder.NetworkToHost16(h.RevNATID)
+	h.RevNATID = byteorder.HostToNetwork32(h.RevNATID)
 	return &h
 }
 
@@ -119,7 +119,7 @@ func (k *SourceRangeKey6) GetCIDR() *cidr.CIDR {
 	c.IP = ip.IP()
 	return cidr.NewCIDR(&c)
 }
-func (k *SourceRangeKey6) GetRevNATID() uint16 {
+func (k *SourceRangeKey6) GetRevNATID() uint32 {
 	return k.RevNATID
 }
 
@@ -169,9 +169,9 @@ func initSourceRange(params InitParams) {
 	}
 }
 
-func srcRangeKey(cidr *cidr.CIDR, revNATID uint16, ipv6 bool) bpf.MapKey {
+func srcRangeKey(cidr *cidr.CIDR, revNATID uint32, ipv6 bool) bpf.MapKey {
 	ones, _ := cidr.Mask.Size()
-	id := byteorder.HostToNetwork16(revNATID)
+	id := byteorder.HostToNetwork32(revNATID)
 	if ipv6 {
 		key := &SourceRangeKey6{PrefixLen: uint32(ones) + lpmPrefixLen6, RevNATID: id}
 		copy(key.Address[:], cidr.IP.To16())

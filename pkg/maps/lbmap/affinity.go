@@ -67,7 +67,7 @@ func initAffinity(params InitParams) {
 
 type AffinityMatchKey struct {
 	BackendID loadbalancer.BackendID `align:"backend_id"`
-	RevNATID  uint16                 `align:"rev_nat_id"`
+	RevNATID  uint32                 `align:"rev_nat_id"`
 	Pad       uint16                 `align:"pad"`
 }
 
@@ -76,7 +76,7 @@ type AffinityMatchValue struct {
 }
 
 // NewAffinityMatchKey creates the AffinityMatch key
-func NewAffinityMatchKey(revNATID uint16, backendID loadbalancer.BackendID) *AffinityMatchKey {
+func NewAffinityMatchKey(revNATID uint32, backendID loadbalancer.BackendID) *AffinityMatchKey {
 	return &AffinityMatchKey{
 		BackendID: backendID,
 		RevNATID:  revNATID,
@@ -100,14 +100,14 @@ func (k *AffinityMatchKey) ToNetwork() *AffinityMatchKey {
 	n := *k
 	// For some reasons rev_nat_index is stored in network byte order in
 	// the SVC BPF maps
-	n.RevNATID = byteorder.HostToNetwork16(n.RevNATID)
+	n.RevNATID = byteorder.HostToNetwork32(n.RevNATID)
 	return &n
 }
 
 // ToHost returns the key in the host byte order
 func (k *AffinityMatchKey) ToHost() *AffinityMatchKey {
 	h := *k
-	h.RevNATID = byteorder.NetworkToHost16(h.RevNATID)
+	h.RevNATID = byteorder.HostToNetwork32(h.RevNATID)
 	return &h
 }
 

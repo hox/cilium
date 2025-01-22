@@ -971,7 +971,7 @@ struct ct_entry {
 	      reserved2:1,	/* unused since v1.14 */
 	      from_tunnel:1,	/* Connection is over tunnel */
 	      reserved3:5;
-	__u16 rev_nat_index;
+	__u32 rev_nat_index;
 	/* In the kernel ifindex is u32, so we need to check in cilium-agent
 	 * that ifindex of a NodePort device is <= MAX(u16).
 	 * Unused when HAVE_FIB_INDEX is available.
@@ -1010,7 +1010,7 @@ struct lb6_service {
 		__u32 l7_lb_proxy_port;	/* In host byte order, only when flags2 && SVC_FLAG_L7LOADBALANCER */
 	};
 	__u16 count;
-	__u16 rev_nat_index;
+	__u32 rev_nat_index;
 	__u8 flags;
 	__u8 flags2;
 	__u8 pad[2];
@@ -1049,7 +1049,7 @@ struct ipv6_revnat_tuple {
 struct ipv6_revnat_entry {
 	union v6addr address;
 	__be16 port;
-	__u16 rev_nat_index;
+	__u32 rev_nat_index;
 };
 
 struct lb4_key {
@@ -1071,7 +1071,7 @@ struct lb4_service {
 	 * slots (otherwise zero).
 	 */
 	__u16 count;
-	__u16 rev_nat_index;	/* Reverse NAT ID in lb4_reverse_nat */
+	__u32 rev_nat_index;	/* Reverse NAT ID in lb4_reverse_nat */
 	__u8 flags;
 	__u8 flags2;
 	__u8  pad[2];
@@ -1109,7 +1109,7 @@ struct ipv4_revnat_tuple {
 struct ipv4_revnat_entry {
 	__be32 address;
 	__be16 port;
-	__u16 rev_nat_index;
+	__u32 rev_nat_index;
 };
 
 union lb4_affinity_client_id {
@@ -1119,7 +1119,7 @@ union lb4_affinity_client_id {
 
 struct lb4_affinity_key {
 	union lb4_affinity_client_id client_id;
-	__u16 rev_nat_id;
+	__u32 rev_nat_id;
 	__u8 netns_cookie:1,
 	     reserved:7;
 	__u8 pad1;
@@ -1133,7 +1133,7 @@ union lb6_affinity_client_id {
 
 struct lb6_affinity_key {
 	union lb6_affinity_client_id client_id;
-	__u16 rev_nat_id;
+	__u32 rev_nat_id;
 	__u8 netns_cookie:1,
 	     reserved:7;
 	__u8 pad1;
@@ -1148,12 +1148,12 @@ struct lb_affinity_val {
 
 struct lb_affinity_match {
 	__u32 backend_id;
-	__u16 rev_nat_id;
+	__u32 rev_nat_id;
 	__u16 pad;
 } __packed;
 
 struct ct_state {
-	__u16 rev_nat_index;
+	__u32 rev_nat_index;
 #ifndef DISABLE_LOOPBACK_LB
 	__u16 loopback:1,
 #else
@@ -1189,14 +1189,14 @@ static __always_inline bool ct_state_is_from_l7lb(const struct ct_state *ct_stat
 
 struct lb4_src_range_key {
 	struct bpf_lpm_trie_key lpm_key;
-	__u16 rev_nat_id;
+	__u32 rev_nat_id;
 	__u16 pad;
 	__u32 addr;
 };
 
 struct lb6_src_range_key {
 	struct bpf_lpm_trie_key lpm_key;
-	__u16 rev_nat_id;
+	__u32 rev_nat_id;
 	__u16 pad;
 	union v6addr addr;
 };

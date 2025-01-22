@@ -3,7 +3,7 @@
 
 #ifdef ENABLE_IPV4
 static __always_inline void
-lb_v4_upsert_service(__be32 addr, __be16 port, __u16 backend_count, __u16 rev_nat_index)
+lb_v4_upsert_service(__be32 addr, __be16 port, __u16 backend_count, __u32 rev_nat_index)
 {
 	struct lb4_key svc_key = {
 		.address = addr,
@@ -22,7 +22,7 @@ lb_v4_upsert_service(__be32 addr, __be16 port, __u16 backend_count, __u16 rev_na
 }
 
 static __always_inline void
-lb_v4_add_service(__be32 addr, __be16 port, __u16 backend_count, __u16 rev_nat_index)
+lb_v4_add_service(__be32 addr, __be16 port, __u16 backend_count, __u32 rev_nat_index)
 {
 	/* Register with both scopes: */
 	lb_v4_upsert_service(addr, port, backend_count, rev_nat_index);
@@ -36,7 +36,7 @@ lb_v4_add_service(__be32 addr, __be16 port, __u16 backend_count, __u16 rev_nat_i
 }
 
 static __always_inline void
-lb_v4_add_service_with_flags(__be32 addr, __be16 port, __u16 backend_count, __u16 rev_nat_index,
+lb_v4_add_service_with_flags(__be32 addr, __be16 port, __u16 backend_count, __u32 rev_nat_index,
 			     __u8 flags, __u8 flags2)
 {
 	struct lb4_key svc_key = {
@@ -97,7 +97,7 @@ lb_v4_add_backend(__be32 svc_addr, __be16 svc_port, __u16 backend_slot,
 
 #ifdef ENABLE_IPV6
 static __always_inline void
-__lb_v6_add_service(const union v6addr *addr, __be16 port, __u16 backend_count, __u16 rev_nat_index,
+__lb_v6_add_service(const union v6addr *addr, __be16 port, __u16 backend_count, __u32 rev_nat_index,
 		    __u8 flags, __u8 flags2)
 {
 	struct lb6_key svc_key __align_stack_8 = {
@@ -127,14 +127,14 @@ __lb_v6_add_service(const union v6addr *addr, __be16 port, __u16 backend_count, 
 
 static __always_inline void
 lb_v6_add_service(const union v6addr *addr, __be16 port, __u16 backend_count,
-		  __u16 rev_nat_index)
+		  __u32 rev_nat_index)
 {
 	__lb_v6_add_service(addr, port, backend_count, rev_nat_index, SVC_FLAG_ROUTABLE, 0);
 }
 
 static __always_inline void
 lb_v6_add_service_with_flags(const union v6addr *addr, __be16 port, __u16 backend_count,
-			     __u16 rev_nat_index, __u8 flags, __u8 flags2)
+			     __u32 rev_nat_index, __u8 flags, __u8 flags2)
 {
 	__lb_v6_add_service(addr, port, backend_count, rev_nat_index, flags, flags2);
 }
