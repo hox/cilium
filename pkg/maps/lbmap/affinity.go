@@ -68,7 +68,6 @@ func initAffinity(params InitParams) {
 type AffinityMatchKey struct {
 	BackendID loadbalancer.BackendID `align:"backend_id"`
 	RevNATID  uint32                 `align:"rev_nat_id"`
-	Pad       uint16                 `align:"pad"`
 }
 
 type AffinityMatchValue struct {
@@ -114,19 +113,19 @@ func (k *AffinityMatchKey) ToHost() *AffinityMatchKey {
 // Affinity4Key is the Go representation of lb4_affinity_key
 type Affinity4Key struct {
 	ClientID    uint64 `align:"client_id"`
-	RevNATID    uint16 `align:"rev_nat_id"`
+	RevNATID    uint32 `align:"rev_nat_id"`
+	Pad1        uint16 `align:"pad1"`
 	NetNSCookie uint8  `align:"netns_cookie"`
-	Pad1        uint8  `align:"pad1"`
-	Pad2        uint32 `align:"pad2"`
+	Pad2        uint8  `align:"pad2"`
 }
 
 // Affinity6Key is the Go representation of lb6_affinity_key
 type Affinity6Key struct {
 	ClientID    types.IPv6 `align:"client_id"`
-	RevNATID    uint16     `align:"rev_nat_id"`
+	RevNATID    uint32     `align:"rev_nat_id"`
+	Pad1        uint16     `align:"pad1"`
 	NetNSCookie uint8      `align:"netns_cookie"`
-	Pad1        uint8      `align:"pad1"`
-	Pad2        uint32     `align:"pad2"`
+	Pad2        uint8      `align:"pad2"`
 }
 
 // AffinityValue is the Go representing of lb_affinity_value

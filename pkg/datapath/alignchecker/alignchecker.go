@@ -125,10 +125,10 @@ func init() {
 		"__u16": {
 			lbmap.Backend4Key{},
 			lbmap.Backend6Key{},
-			lbmap.RevNat4Key{},
-			lbmap.RevNat6Key{},
 		},
 		"__u32": {
+			lbmap.RevNat4Key{},
+			lbmap.RevNat6Key{},
 			lbmap.Backend4KeyV3{},
 			lbmap.Backend6KeyV3{},
 			signalmap.Key{},

@@ -40,7 +40,6 @@ var _ SourceRangeKey = (*SourceRangeKey6)(nil)
 type SourceRangeKey4 struct {
 	PrefixLen uint32     `align:"lpm_key"`
 	RevNATID  uint32     `align:"rev_nat_id"`
-	Pad       uint16     `align:"pad"`
 	Address   types.IPv4 `align:"addr"`
 }
 
@@ -83,7 +82,6 @@ func (k *SourceRangeKey4) GetRevNATID() uint32 {
 type SourceRangeKey6 struct {
 	PrefixLen uint32     `align:"lpm_key"`
 	RevNATID  uint32     `align:"rev_nat_id"`
-	Pad       uint16     `align:"pad"`
 	Address   types.IPv6 `align:"addr"`
 }
 

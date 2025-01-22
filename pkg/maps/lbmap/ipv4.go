@@ -563,8 +563,9 @@ type SockRevNat4Key struct {
 // SockRevNat4Value is an entry in the reverse NAT sock map.
 type SockRevNat4Value struct {
 	Address     types.IPv4 `align:"address"`
+	RevNatIndex uint32     `align:"rev_nat_index"`
 	Port        int16      `align:"port"`
-	RevNatIndex uint16     `align:"rev_nat_index"`
+	Pad         uint16     `align:"pad"`
 }
 
 func (k *SockRevNat4Key) Map() *bpf.Map { return SockRevNat4Map }

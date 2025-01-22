@@ -462,9 +462,10 @@ const SizeofSockRevNat6Key = int(unsafe.Sizeof(SockRevNat6Key{}))
 
 // SockRevNat6Value is an entry in the reverse NAT sock map.
 type SockRevNat6Value struct {
-	address     types.IPv6 `align:"address"`
-	port        int16      `align:"port"`
-	revNatIndex uint16     `align:"rev_nat_index"`
+	Address     types.IPv6 `align:"address"`
+	RevNatIndex uint32     `align:"rev_nat_index"`
+	Port        int16      `align:"port"`
+	Pad         uint16     `align:"pad"`
 }
 
 // SizeofSockRevNat6Value is the size of type SockRevNat6Value.
