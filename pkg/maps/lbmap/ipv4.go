@@ -348,7 +348,7 @@ func (s *Service4Value) ToNetwork() ServiceValue {
 // ToHost converts Service4Value to host byte order.
 func (s *Service4Value) ToHost() ServiceValue {
 	h := *s
-	h.RevNat = byteorder.HostToNetwork32(h.RevNat)
+	h.RevNat = byteorder.NetworkToHost32(h.RevNat)
 	return &h
 }
 

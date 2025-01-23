@@ -94,7 +94,7 @@ func (v *RevNat6Key) ToNetwork() RevNatKey {
 // ToNetwork converts RevNat6Key to host byte order.
 func (v *RevNat6Key) ToHost() RevNatKey {
 	h := *v
-	h.Key = byteorder.HostToNetwork32(h.Key)
+	h.Key = byteorder.NetworkToHost32(h.Key)
 	return &h
 }
 
@@ -247,7 +247,7 @@ func (s *Service6Value) ToNetwork() ServiceValue {
 // ToHost converts Service6Value to host byte order.
 func (s *Service6Value) ToHost() ServiceValue {
 	h := *s
-	h.RevNat = byteorder.HostToNetwork32(h.RevNat)
+	h.RevNat = byteorder.NetworkToHost32(h.RevNat)
 	return &h
 }
 

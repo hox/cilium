@@ -61,7 +61,7 @@ func (k *SourceRangeKey4) ToNetwork() SourceRangeKey {
 // ToHost returns the key in the host byte order
 func (k *SourceRangeKey4) ToHost() SourceRangeKey {
 	h := *k
-	h.RevNATID = byteorder.HostToNetwork32(h.RevNATID)
+	h.RevNATID = byteorder.NetworkToHost32(h.RevNATID)
 	return &h
 }
 
@@ -103,7 +103,7 @@ func (k *SourceRangeKey6) ToNetwork() SourceRangeKey {
 // ToHost returns the key in the host byte order
 func (k *SourceRangeKey6) ToHost() SourceRangeKey {
 	h := *k
-	h.RevNATID = byteorder.HostToNetwork32(h.RevNATID)
+	h.RevNATID = byteorder.NetworkToHost32(h.RevNATID)
 	return &h
 }
 

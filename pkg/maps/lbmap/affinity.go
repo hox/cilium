@@ -106,7 +106,7 @@ func (k *AffinityMatchKey) ToNetwork() *AffinityMatchKey {
 // ToHost returns the key in the host byte order
 func (k *AffinityMatchKey) ToHost() *AffinityMatchKey {
 	h := *k
-	h.RevNATID = byteorder.HostToNetwork32(h.RevNATID)
+	h.RevNATID = byteorder.NetworkToHost32(h.RevNATID)
 	return &h
 }
 
